@@ -9,6 +9,7 @@ namespace GreatFriends.SmartHoltel.Services
 {
   public abstract class ServiceBase<T> : IService<T> where T : class
   {
+    // todo    protected เข้าถึงได้จากคลาสเดียวกัน หรือ คลาสลูก
     protected readonly App app;
     public ServiceBase(App app) => this.app = app;
 

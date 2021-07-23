@@ -1,11 +1,14 @@
-using GreatFriends.SmartHoltel.Models;
+﻿using GreatFriends.SmartHoltel.Models;
 using System;
 using Xunit;
 
 namespace GreatFriends.SmartHotel.Tests
 {
+
+    // todo ชื่อคลาส + Test
   public class ReservationTest
   {
+        // todo ชือ method ที่จะเทส
     public class Cancel
     {
 

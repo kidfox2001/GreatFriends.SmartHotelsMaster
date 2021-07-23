@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>  <!--todo ทำให้ gen doc api ได้-->
     <UserSecretsId>4f2ee889-1985-4dd2-9a3a-bc9ac65b5a4f</UserSecretsId>
   </PropertyGroup>
 

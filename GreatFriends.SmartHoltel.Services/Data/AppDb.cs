@@ -6,11 +6,17 @@ using System.Text;
 
 namespace GreatFriends.SmartHoltel.Services.Data
 {
-  // -s คือการบอกตำแหน่งของ startup file
-  //todo  dotnet ef migrations add update01 -s ..\GreatFriends.SmartHotel.APIs\GreatFriends.SmartHotel.APIs.csproj -o Data\Migrations
-  //todo  dotnet ef database update -s ..\GreatFriends.SmartHotel.APIs\GreatFriends.SmartHotel.APIs.csproj
+    // todo install dotnet-ef
+    //dotnet tool list -g (เช็คโปรแกรมในระดับเครื่อง)
+    //dotnet tool install dotnet-ef --global (ลงโปรแกรม)
 
-  public class AppDb : DbContext
+
+    // todo dotnet ef migrations
+    // -s คือการบอกตำแหน่งของ startup file (คำสั่งนี้ควรใช้กับ project ที่มี DbContext) -o ออกไปที่ folder
+    // dotnet ef migrations add update01 -s ..\GreatFriends.SmartHotel.APIs\GreatFriends.SmartHotel.APIs.csproj -o Data\Migrations
+    // dotnet ef database update -s ..\GreatFriends.SmartHotel.APIs\GreatFriends.SmartHotel.APIs.csproj
+
+    public class AppDb : DbContext
   {
     public AppDb(DbContextOptions<AppDb> options) : base(options)
     {

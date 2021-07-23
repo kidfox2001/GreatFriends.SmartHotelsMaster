@@ -7,7 +7,9 @@ using System.Text;
 
 namespace GreatFriends.SmartHoltel.Services
 {
-  public class ReservationService : ServiceBase<Reservation>
+    // Service method ควรเป็นระดับ Business usecase ตัวอย่าง method cancel ควรอยู่ใน service เอา save ไว้ใน method ดีกว่า
+    // (อะไรเกี่ยวกับ object หนี่ง object ไม่เกี่ยวกับ Business usecase ให้อยู่ใน Domain model ได้)
+    public class ReservationService : ServiceBase<Reservation>
   {
     public ReservationService(App app) : base(app)
     {

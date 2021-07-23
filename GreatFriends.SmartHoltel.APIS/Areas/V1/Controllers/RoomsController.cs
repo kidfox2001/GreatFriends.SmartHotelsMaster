@@ -13,138 +13,141 @@ using X.PagedList;
 
 namespace GreatFriends.SmartHoltel.APIS.Areas.V1.Controllers
 {
-  [Area("v1")]
-  [ApiExplorerSettings(GroupName = "v1")]
-  [Route("api/v1/[controller]")]
-  [Produces("application/json")]
-  [ApiController]
-  public class RoomsController : ControllerBase
-  {
-    private readonly App app;
-
-    public RoomsController(App app)
+    [Area("v1")]
+    [ApiExplorerSettings(GroupName = "v1")]
+    [Route("api/v1/[controller]")]
+    [Produces("application/json")]
+    [ApiController]
+    public class RoomsController : ControllerBase
     {
-      this.app = app;
+        private readonly App app;
 
-    }
+        public RoomsController(App app)
+        {
+            this.app = app;
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<RoomResponse>>> GetAllAsync([FromHeader(Name = "X-RoomType")] string roomType = "", int page = 1)
-    {
-      var q = app.Rooms.All().Include(r => r.RoomType)
+        }
+
+
+        // todo ActionResult<T> รับได้ทั้งสองอย่าง ActionResult หรือ T
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<RoomResponse>>> GetAllAsync([FromHeader(Name = "X-RoomType")] string roomType = "", int page = 1)
+        {
+            
+            var q = app.Rooms.All().Include(r => r.RoomType)
                 .OrderBy(x => x.Id)
                 .Select(x => x);
 
-      if (!string.IsNullOrEmpty(roomType))
-      {
-        q = q.Where(x => x.RoomTypeCode == roomType);
-      }
+            if (!string.IsNullOrEmpty(roomType))
+            {
+                q = q.Where(x => x.RoomTypeCode == roomType);
+            }
 
-      var items = await q.ToPagedListAsync(page, 10); // q.ToListAsync();
-      HttpContext.Response.Headers.Add("X-Total-Pages", items.PageCount.ToString());
-      HttpContext.Response.Headers.Add("X-Page", items.PageNumber.ToString());
-      HttpContext.Response.Headers.Add("X-Page-Size", items.PageSize.ToString());
+            var items = await q.ToPagedListAsync(page, 10); // q.ToListAsync();
+            HttpContext.Response.Headers.Add("X-Total-Pages", items.PageCount.ToString());
+            HttpContext.Response.Headers.Add("X-Page", items.PageNumber.ToString());
+            HttpContext.Response.Headers.Add("X-Page-Size", items.PageSize.ToString());
 
-      var output = items.ToList().ConvertAll(RoomResponse.FromModel);
+            var output = items.ToList().ConvertAll(RoomResponse.FromModel);
 
-      return output;
-    }
+            return output;
+        }
 
-    [Authorize]
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public ActionResult<RoomResponse> GetById(int id)
-    {
-      //if (!app.IsAuthenticated)
-      //{
-      //  return Unauthorized("555");
-      //}
-
-      var item = app.Rooms.Find(id);
-
-      if (item == null)
-      {
-        return NotFound($"Room id : {id} not found");
-      }
-
-      return RoomResponse.FromModel(item);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public ActionResult<RoomResponse> Create(RoomRequest item)
-    {
-      var itemRoomType = app.RoomTypes.Find(item.RoomTypeCode);
-
-      if (itemRoomType == null)
-      {
-        return NotFound(new ProblemDetails()
+        [Authorize]
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public ActionResult<RoomResponse> GetById(int id)
         {
-          Title = $"RoomType code : {item.RoomTypeCode}  not found"
-        });
-      }
+            //if (!app.IsAuthenticated)
+            //{
+            //  return Unauthorized("555");
+            //}
 
-      Room newRoom = item.ToModel();
+            var item = app.Rooms.Find(id);
 
-      app.Rooms.Add(newRoom);
-      app.SaveChanges();
+            if (item == null)
+            {
+                return NotFound($"Room id : {id} not found");
+            }
 
-      return CreatedAtAction(nameof(GetById), new { id = newRoom.Id }, RoomResponse.FromModel(newRoom));
+            return RoomResponse.FromModel(item);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public ActionResult<RoomResponse> Create(RoomRequest item)
+        {
+            var itemRoomType = app.RoomTypes.Find(item.RoomTypeCode);
+
+            if (itemRoomType == null)
+            {
+                return NotFound(new ProblemDetails()
+                {
+                    Title = $"RoomType code : {item.RoomTypeCode}  not found"
+                });
+            }
+
+            Room newRoom = item.ToModel();
+
+            app.Rooms.Add(newRoom);
+            app.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = newRoom.Id }, RoomResponse.FromModel(newRoom));
+        }
+
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult> UpdateAsync(int id, RoomRequest item)
+        {
+            if (id != item.Id)
+            {
+                return BadRequest("Invalid ID");
+            }
+
+            var itemRoom = app.Rooms.Find(id);
+
+            if (itemRoom == null)
+            {
+                return NotFound(new ProblemDetails() { Title = $"Room id : {id}  not found" });
+            }
+
+
+            itemRoom.AreaSquareMeters = item.AreaSquareMeters;
+            itemRoom.FloorNo = item.FloorNo;
+            itemRoom.RoomTypeCode = item.RoomTypeCode;
+
+            await app.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<RoomResponse>> DeleteAsync(int id)
+        {
+            var item = app.Rooms.Find(id);
+
+            if (item == null)
+            {
+                return NotFound(new ProblemDetails { Title = $"Room id {id} not found" });
+            }
+
+            app.Rooms.Remove(item);
+            await app.SaveChangesAsync();
+
+            return RoomResponse.FromModel(item);
+        }
+
+
     }
-
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult> UpdateAsync(int id, RoomRequest item)
-    {
-      if (id != item.Id)
-      {
-        return BadRequest("Invalid ID");
-      }
-
-      var itemRoom = app.Rooms.Find(id);
-
-      if (itemRoom == null)
-      {
-        return NotFound(new ProblemDetails() { Title = $"Room id : {id}  not found" });
-      }
-
-
-      itemRoom.AreaSquareMeters = item.AreaSquareMeters;
-      itemRoom.FloorNo = item.FloorNo;
-      itemRoom.RoomTypeCode = item.RoomTypeCode;
-
-      await app.SaveChangesAsync();
-
-      return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<RoomResponse>> DeleteAsync(int id)
-    {
-      var item = app.Rooms.Find(id);
-
-      if (item == null)
-      {
-        return NotFound(new ProblemDetails { Title = $"Room id {id} not found" });
-      }
-
-      app.Rooms.Remove(item);
-      await app.SaveChangesAsync();
-
-      return RoomResponse.FromModel(item);
-    }
-
-
-  }
 }
