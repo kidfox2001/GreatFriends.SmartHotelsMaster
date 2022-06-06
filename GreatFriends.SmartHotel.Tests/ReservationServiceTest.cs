@@ -13,12 +13,12 @@ using Should;
 namespace GreatFriends.SmartHotel.Tests
 {
     // todo ควรแตกเคสย่อยที่สุดเท่าที่จะย่อยได้ เพราะเวลาไม่ผ่านจะไล่ยาก
-    // todo ชื่อคลาส + Test
-    public class ReservationServiceTest
+    
+    public class ReservationServiceTest  // todo ชื่อคลาส + Test
     {
 
-        // todo ชือ method ที่จะเทส
-        public class Create
+       
+        public class Create // todo ชือ method ที่จะเทส
         {
 
             [Fact]
@@ -84,6 +84,7 @@ namespace GreatFriends.SmartHotel.Tests
                 }
             }
 
+            // todo ตัวอย่าง ส่งค่าแคสต่างๆ ผ่าน function
             // todo Give_then (Give_when_then)
             [Theory]
             [MemberData(nameof(InvalidDateData), "2021-03-20", 5)]
@@ -117,6 +118,8 @@ namespace GreatFriends.SmartHotel.Tests
                 Assert.Equal("Invalid checkin or checkout date", ex.Reason);
             }
 
+
+            // todo ตัวอย่าง ส่งค่าแคสต่างๆ ผ่าน para
             [Theory]
             [InlineData("2021-02-10", "2021-02-21")]
             [InlineData("2021-02-10", "2021-02-22")]
